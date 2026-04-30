@@ -1,0 +1,1122 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>携帯料金比較</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172026;
+      --muted: #62717d;
+      --line: #d9e0e6;
+      --panel: #ffffff;
+      --soft: #f5f8fa;
+      --accent: #0b6b88;
+      --accent-2: #d84d2a;
+      --good: #167a54;
+      --warn: #a65e00;
+      --shadow: 0 18px 40px rgba(26, 44, 56, .10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans JP", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(11, 107, 136, .10), transparent 360px),
+        linear-gradient(90deg, rgba(216, 77, 42, .08), transparent 55%),
+        #f7fafb;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 36px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      padding: 18px 0 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 700px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    .date-pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, .78);
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 16px;
+      align-items: stretch;
+      margin-bottom: 20px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, .86);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .usage-panel {
+      padding: 18px;
+    }
+
+    .panel-title {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .usage-grid {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .gb-number {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      justify-content: flex-end;
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 34px;
+    }
+
+    .gb-number span {
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .quick-gb {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .chip,
+    .icon-button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 999px;
+      min-height: 34px;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+
+    .chip.active,
+    .icon-button.active {
+      border-color: var(--accent);
+      background: #e7f4f7;
+      color: #064d62;
+      font-weight: 700;
+    }
+
+    .options-panel {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .option-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .option-row label {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    select {
+      width: 190px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 9px 10px;
+      color: var(--ink);
+    }
+
+    .toggle-list {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .metric {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 23px;
+      line-height: 1.1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin: 8px 0 14px;
+    }
+
+    .brand-filter {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      min-height: 278px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 10px 26px rgba(20, 35, 45, .08);
+      display: grid;
+      gap: 14px;
+    }
+
+    .card.best {
+      border-color: rgba(22, 122, 84, .45);
+      box-shadow: 0 16px 36px rgba(22, 122, 84, .14);
+    }
+
+    .brand-bar {
+      height: 5px;
+      width: 100%;
+      position: absolute;
+      inset: 0 0 auto;
+    }
+
+    .docomo { background: #d6002a; }
+    .au { background: #f08300; }
+    .softbank { background: #1f2328; }
+    .rakuten { background: #bf0000; }
+    .mvno { background: #13805e; }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      padding-top: 4px;
+    }
+
+    .carrier {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .plan-name {
+      margin: 3px 0 0;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .badge {
+      min-width: 68px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .price {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-top: 2px;
+      font-size: 34px;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .price small {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .price-note {
+      margin-top: -8px;
+      min-height: 36px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .data-meter {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8edf1;
+    }
+
+    .data-meter span {
+      display: block;
+      height: 100%;
+      max-width: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #38a288);
+    }
+
+    .specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .spec {
+      min-height: 64px;
+      border: 1px solid #e5eaee;
+      border-radius: 8px;
+      padding: 9px;
+      background: #fbfcfd;
+    }
+
+    .spec span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .spec strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-top: 1px solid #edf1f4;
+      padding-top: 12px;
+    }
+
+    .source-link {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .fit {
+      color: var(--good);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .fit.warn {
+      color: var(--warn);
+    }
+
+    .table-panel {
+      margin-top: 18px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 850px;
+      background: var(--panel);
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      background: #f8fafb;
+    }
+
+    td:last-child,
+    th:last-child {
+      text-align: right;
+    }
+
+    footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    footer a {
+      color: var(--accent);
+    }
+
+    @media (max-width: 900px) {
+      header,
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .summary {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .date-pill {
+        justify-self: start;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app-shell {
+        width: min(100% - 20px, 1180px);
+        padding-top: 14px;
+      }
+
+      .usage-grid,
+      .option-row,
+      .summary,
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .gb-number {
+        justify-content: flex-start;
+      }
+
+      select {
+        width: 100%;
+      }
+
+      .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header>
+      <div>
+        <h1>携帯料金比較</h1>
+        <p class="lead">ドコモ・au・ソフトバンクと、ahamo / povo / UQ mobile / Y!mobile / LINEMOを、使うギガ数と通話条件に合わせてざっくり比較できます。</p>
+      </div>
+      <div class="date-pill">公式情報確認日: 2026年4月30日</div>
+    </header>
+
+    <section class="controls" aria-label="比較条件">
+      <div class="panel usage-panel">
+        <p class="panel-title">月に使うデータ量</p>
+        <div class="usage-grid">
+          <div>
+            <input id="usage" type="range" min="1" max="120" value="30" aria-label="月間データ量">
+            <div class="quick-gb" id="quickGb"></div>
+          </div>
+          <div class="gb-number"><output id="usageOutput">30</output><span>GB</span></div>
+        </div>
+      </div>
+
+      <div class="panel options-panel">
+        <div class="option-row">
+          <label for="callMode">通話</label>
+          <select id="callMode">
+            <option value="none">ほぼ使わない</option>
+            <option value="five">5〜10分以内が多い</option>
+            <option value="unlimited">長電話が多い</option>
+          </select>
+        </div>
+        <div>
+          <p class="panel-title">割引条件</p>
+          <div class="toggle-list">
+            <button class="icon-button" type="button" data-discount="family">家族</button>
+            <button class="icon-button" type="button" data-discount="home">光/でんき</button>
+            <button class="icon-button" type="button" data-discount="card">カード</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="summary" aria-label="比較結果サマリー">
+      <div class="metric">
+        <strong id="bestPlan">-</strong>
+        <span>最安候補</span>
+      </div>
+      <div class="metric">
+        <strong id="bestPrice">-</strong>
+        <span>条件反映後の月額目安</span>
+      </div>
+      <div class="metric">
+        <strong id="bestAnnual">-</strong>
+        <span>最安候補の年間目安</span>
+      </div>
+      <div class="metric">
+        <strong id="avgPrice">-</strong>
+        <span>表示中プランの平均月額</span>
+      </div>
+      <div class="metric">
+        <strong id="planCount">-</strong>
+        <span>比較中プラン数</span>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <div class="brand-filter" id="brandFilter" aria-label="ブランド絞り込み"></div>
+      <select id="sortMode" aria-label="並び替え">
+        <option value="price">安い順</option>
+        <option value="data">データ量が多い順</option>
+        <option value="carrier">会社別</option>
+      </select>
+    </div>
+
+    <section class="cards" id="cards" aria-label="プランカード"></section>
+
+    <section class="panel table-panel" aria-label="料金比較表">
+      <table>
+        <thead>
+          <tr>
+            <th>会社</th>
+            <th>ブランド/プラン</th>
+            <th>容量</th>
+            <th>基本月額</th>
+            <th>通話込み</th>
+            <th>割引目安</th>
+            <th>あなたの条件</th>
+            <th>年間目安</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </section>
+
+    <footer>
+      料金は税込の月額目安です。機種代、事務手数料、キャンペーン、家族回線数、固定回線契約、カード種別、速度制限などで実際の請求額は変わります。データは公式ページをもとにした簡易比較です:
+      <a href="https://www.docomo.ne.jp/charge/docomo_max/" target="_blank" rel="noreferrer">ドコモ MAX</a>,
+      <a href="https://www.docomo.ne.jp/charge/docomo_mini/" target="_blank" rel="noreferrer">ドコモ mini</a>,
+      <a href="https://ahamo.com/plan/index.html" target="_blank" rel="noreferrer">ahamo</a>,
+      <a href="https://www.au.com/mobile/charge/smartphone/plan/auvaluelink/" target="_blank" rel="noreferrer">auバリューリンクプラン</a>,
+      <a href="https://povo.jp/simulator/" target="_blank" rel="noreferrer">povo</a>,
+      <a href="https://www.uqwimax.jp/mobile/plan/tokutoku2/" target="_blank" rel="noreferrer">UQ mobile</a>,
+      <a href="https://www.softbank.jp/mobile/price_plan/" target="_blank" rel="noreferrer">ソフトバンク</a>,
+      <a href="https://www.ymobile.jp/plan/smartphone/" target="_blank" rel="noreferrer">Y!mobile</a>,
+      <a href="https://www.linemo.jp/plan/" target="_blank" rel="noreferrer">LINEMO</a>,
+      <a href="https://network.mobile.rakuten.co.jp/fee/saikyo-plan/" target="_blank" rel="noreferrer">楽天モバイル</a>,
+      <a href="https://mineo.jp/price/" target="_blank" rel="noreferrer">mineo</a>,
+      <a href="https://www.iijmio.jp/hdc/spec/index.html" target="_blank" rel="noreferrer">IIJmio</a>,
+      <a href="https://www.nihontsushin.com/plan/" target="_blank" rel="noreferrer">日本通信SIM</a>。
+    </footer>
+  </main>
+
+  <script>
+    const plans = [
+      {
+        carrier: "docomo",
+        brand: "ドコモ",
+        name: "ドコモ MAX",
+        data: Infinity,
+        dataLabel: "無制限",
+        base: 8448,
+        callIncluded: "家族間無料",
+        callFive: 880,
+        callUnlimited: 1980,
+        discounts: { family: 1210, home: 1210, card: 550 },
+        note: "段階制。1GB以下は5,698円、1〜3GBは6,798円。",
+        source: "https://www.docomo.ne.jp/charge/docomo_max/"
+      },
+      {
+        carrier: "docomo",
+        brand: "ドコモ",
+        name: "ドコモ mini 10GB",
+        data: 10,
+        dataLabel: "10GB",
+        base: 3850,
+        callIncluded: "従量制",
+        callFive: 880,
+        callUnlimited: 1980,
+        discounts: { home: 1210, card: 550 },
+        note: "小容量向け。4GB版は2,750円。",
+        source: "https://www.docomo.ne.jp/charge/docomo_mini/"
+      },
+      {
+        carrier: "docomo",
+        brand: "ahamo",
+        name: "ahamo",
+        data: 30,
+        dataLabel: "30GB",
+        base: 2970,
+        callIncluded: "5分無料",
+        callFive: 0,
+        callUnlimited: 1100,
+        discounts: {},
+        note: "オンライン中心。大盛り110GBは4,950円。",
+        source: "https://ahamo.com/plan/index.html"
+      },
+      {
+        carrier: "au",
+        brand: "au",
+        name: "auバリューリンク",
+        data: Infinity,
+        dataLabel: "使い放題",
+        base: 8008,
+        callIncluded: "従量制",
+        callFive: 880,
+        callUnlimited: 1980,
+        discounts: { family: 1210, home: 1100, card: 220 },
+        note: "200GB超は最大5Mbps制限。テザリング等は60GBまで。",
+        source: "https://www.au.com/mobile/charge/smartphone/plan/auvaluelink/"
+      },
+      {
+        carrier: "au",
+        brand: "UQ mobile",
+        name: "トクトクプラン2",
+        data: 30,
+        dataLabel: "30GB",
+        base: 4048,
+        callIncluded: "従量制",
+        callFive: 880,
+        callUnlimited: 1980,
+        discounts: { family: 550, home: 1100, card: 220, lowUse: 1100 },
+        note: "5GB以下は追加割引あり。自宅セット割と家族割は重複不可。",
+        source: "https://www.uqwimax.jp/mobile/plan/tokutoku2/"
+      },
+      {
+        carrier: "au",
+        brand: "UQ mobile",
+        name: "コミコミプランバリュー",
+        data: 35,
+        dataLabel: "35GB",
+        base: 3828,
+        callIncluded: "10分無料",
+        callFive: 0,
+        callUnlimited: 1100,
+        discounts: {},
+        note: "10分通話とPontaパス込み。",
+        source: "https://www.uqwimax.jp/mobile/newplan2025/"
+      },
+      {
+        carrier: "au",
+        brand: "povo",
+        name: "povo 30GB",
+        data: 30,
+        dataLabel: "30GB/30日",
+        base: 2780,
+        callIncluded: "従量制",
+        callFive: 550,
+        callUnlimited: 1650,
+        discounts: {},
+        note: "基本料0円、必要な分をトッピング購入。",
+        source: "https://povo.jp/simulator/"
+      },
+      {
+        carrier: "softbank",
+        brand: "ソフトバンク",
+        name: "メリハリ無制限＋",
+        data: Infinity,
+        dataLabel: "無制限",
+        base: 7425,
+        callIncluded: "従量制",
+        callFive: 880,
+        callUnlimited: 1980,
+        discounts: { family: 1210, home: 1100, card: 187 },
+        note: "2GB以下は自動割引。2026年7月に料金改定予定。",
+        source: "https://www.softbank.jp/mobile/price_plan/"
+      },
+      {
+        carrier: "softbank",
+        brand: "Y!mobile",
+        name: "シンプル3 M",
+        data: 30,
+        dataLabel: "30GB",
+        base: 4158,
+        callIncluded: "従量制",
+        callFive: 880,
+        callUnlimited: 1980,
+        discounts: { family: 1100, home: 1650, card: 330 },
+        note: "Sは5GB、Lは35GB。家族割とおうち割は重複不可。",
+        source: "https://www.ymobile.jp/plan/smartphone/"
+      },
+      {
+        carrier: "softbank",
+        brand: "LINEMO",
+        name: "LINEMOベストプランV",
+        data: 30,
+        dataLabel: "30GB",
+        base: 2970,
+        callIncluded: "5分無料",
+        callFive: 0,
+        callUnlimited: 1100,
+        discounts: {},
+        note: "オンライン専用。ベストプランは3GB 990円/10GB 2,090円。",
+        source: "https://www.linemo.jp/plan/"
+      },
+      {
+        carrier: "rakuten",
+        brand: "楽天モバイル",
+        name: "Rakuten最強プラン",
+        data: Infinity,
+        dataLabel: "段階制/無制限",
+        base: 3278,
+        callIncluded: "Rakuten Link無料",
+        callFive: 0,
+        callUnlimited: 0,
+        discounts: { family: 110 },
+        note: "3GBまで1,078円、20GBまで2,178円、20GB超は3,278円。",
+        source: "https://network.mobile.rakuten.co.jp/fee/saikyo-plan/"
+      },
+      {
+        carrier: "mvno",
+        brand: "mineo",
+        name: "マイピタ 30GB",
+        data: 30,
+        dataLabel: "30GB",
+        base: 2178,
+        callIncluded: "従量制",
+        callFive: 550,
+        callUnlimited: 1210,
+        discounts: {},
+        note: "余ったデータは翌月繰り越し。パケット放題3Mbps対象。",
+        source: "https://mineo.jp/price/"
+      },
+      {
+        carrier: "mvno",
+        brand: "mineo",
+        name: "マイピタ 50GB",
+        data: 50,
+        dataLabel: "50GB",
+        base: 2948,
+        callIncluded: "従量制",
+        callFive: 550,
+        callUnlimited: 1210,
+        discounts: {},
+        note: "大容量向け。余ったデータは翌月繰り越し。",
+        source: "https://mineo.jp/price/"
+      },
+      {
+        carrier: "mvno",
+        brand: "IIJmio",
+        name: "ギガプラン 35GB",
+        data: 35,
+        dataLabel: "35GB",
+        base: 2400,
+        callIncluded: "従量制",
+        callFive: 500,
+        callUnlimited: 1400,
+        discounts: { family: 100 },
+        note: "ドコモ網/au網を選べる音声SIM。家族割は2回線以上。",
+        source: "https://www.iijmio.jp/hdc/spec/index.html"
+      },
+      {
+        carrier: "mvno",
+        brand: "IIJmio",
+        name: "ギガプラン 55GB",
+        data: 55,
+        dataLabel: "55GB",
+        base: 3900,
+        callIncluded: "従量制",
+        callFive: 500,
+        callUnlimited: 1400,
+        discounts: { family: 100 },
+        note: "大容量の格安SIM候補。通話定額は別オプション。",
+        source: "https://www.iijmio.jp/hdc/spec/index.html"
+      },
+      {
+        carrier: "mvno",
+        brand: "日本通信SIM",
+        name: "合理的みんなのプラン",
+        data: 20,
+        dataLabel: "20GB",
+        base: 1390,
+        callIncluded: "5分 or 70分無料",
+        callFive: 0,
+        callUnlimited: 1600,
+        discounts: {},
+        note: "20GB超は1GBあたり220円で50GBまで使った分だけ加算。",
+        source: "https://www.nihontsushin.com/plan/planminna.html"
+      },
+      {
+        carrier: "mvno",
+        brand: "日本通信SIM",
+        name: "合理的50GBプラン",
+        data: 50,
+        dataLabel: "50GB",
+        base: 2178,
+        callIncluded: "5分 or 70分無料",
+        callFive: 0,
+        callUnlimited: 1200,
+        discounts: {},
+        note: "50GBと無料通話つき。超過は1GBあたり220円。",
+        source: "https://www.nihontsushin.com/plan/plangbgdvc.html"
+      }
+    ];
+
+    const carrierLabels = {
+      all: "すべて",
+      docomo: "ドコモ系",
+      au: "au系",
+      softbank: "ソフトバンク系",
+      rakuten: "楽天",
+      mvno: "格安SIM"
+    };
+
+    const state = {
+      usage: 30,
+      callMode: "none",
+      discounts: new Set(),
+      carrier: "all",
+      sort: "price"
+    };
+
+    const yen = value => new Intl.NumberFormat("ja-JP", {
+      style: "currency",
+      currency: "JPY",
+      maximumFractionDigits: 0
+    }).format(value);
+
+    const carrierName = carrier => ({
+      docomo: "ドコモ系",
+      au: "au系",
+      softbank: "ソフトバンク系",
+      rakuten: "楽天",
+      mvno: "格安SIM"
+    })[carrier] || carrier;
+
+    const maxDiscount = plan => {
+      let amount = 0;
+      const d = plan.discounts || {};
+
+      if (plan.carrier === "au" && plan.brand === "UQ mobile") {
+        if (state.discounts.has("home")) {
+          amount += d.home || 0;
+        } else if (state.discounts.has("family")) {
+          amount += d.family || 0;
+        }
+      } else if (plan.carrier === "softbank" && plan.brand === "Y!mobile") {
+        if (state.discounts.has("home")) {
+          amount += d.home || 0;
+        } else if (state.discounts.has("family")) {
+          amount += d.family || 0;
+        }
+      } else {
+        for (const key of state.discounts) amount += d[key] || 0;
+      }
+
+      if (state.usage <= 5 && d.lowUse) amount += d.lowUse;
+      return amount;
+    };
+
+    const usageAdjustedBase = plan => {
+      if (plan.name === "ドコモ MAX") {
+        if (state.usage <= 1) return 5698;
+        if (state.usage <= 3) return 6798;
+      }
+      if (plan.name === "ahamo" && state.usage > 30) return 4950;
+      if (plan.name === "LINEMOベストプランV" && state.usage <= 10) {
+        return state.usage <= 3 ? 990 : 2090;
+      }
+      if (plan.name === "povo 30GB") {
+        if (state.usage <= 3) return 990;
+        if (state.usage <= 5) return 1380;
+        if (state.usage <= 20) return Math.ceil(6490 / 3);
+        if (state.usage <= 30) return 2780;
+        if (state.usage <= 100) return Math.ceil(9834 / 3);
+      }
+      if (plan.name === "Rakuten最強プラン") {
+        if (state.usage <= 3) return 1078;
+        if (state.usage <= 20) return 2178;
+        return 3278;
+      }
+      if (plan.name === "マイピタ 30GB") {
+        if (state.usage <= 3) return 1298;
+        if (state.usage <= 7) return 1518;
+        if (state.usage <= 15) return 1958;
+      }
+      if (plan.name === "マイピタ 50GB") {
+        if (state.usage <= 3) return 1298;
+        if (state.usage <= 7) return 1518;
+        if (state.usage <= 15) return 1958;
+        if (state.usage <= 30) return 2178;
+      }
+      if (plan.brand === "IIJmio") {
+        if (state.usage <= 2) return 850;
+        if (state.usage <= 5) return 950;
+        if (state.usage <= 10) return 1400;
+        if (state.usage <= 15) return 1600;
+        if (state.usage <= 25) return 2000;
+        if (state.usage <= 35) return 2400;
+        if (state.usage <= 45) return 3300;
+      }
+      if (plan.name === "合理的みんなのプラン" && state.usage > 20) {
+        return 1390 + ((state.usage - 20) * 220);
+      }
+      return plan.base;
+    };
+
+    const hasEnoughData = plan => {
+      if (plan.data === Infinity) return true;
+      if (plan.name === "ahamo" && state.usage <= 110) return true;
+      if (plan.name === "povo 30GB" && state.usage <= 100) return true;
+      if (plan.name === "合理的みんなのプラン" && state.usage <= 50) return true;
+      return plan.data >= state.usage;
+    };
+
+    const callCost = plan => {
+      if (state.callMode === "five") return plan.callFive;
+      if (state.callMode === "unlimited") return plan.callUnlimited;
+      return 0;
+    };
+
+    const totalFor = plan => Math.max(0, usageAdjustedBase(plan) + callCost(plan) - maxDiscount(plan));
+
+    const filteredPlans = () => plans
+      .filter(plan => state.carrier === "all" || plan.carrier === state.carrier)
+      .filter(hasEnoughData)
+      .sort((a, b) => {
+        if (state.sort === "data") return (b.data === Infinity ? 999 : b.data) - (a.data === Infinity ? 999 : a.data);
+        if (state.sort === "carrier") return `${a.carrier}${a.brand}`.localeCompare(`${b.carrier}${b.brand}`, "ja");
+        return totalFor(a) - totalFor(b);
+      });
+
+    function renderControls() {
+      const quick = document.querySelector("#quickGb");
+      quick.innerHTML = "";
+      [3, 10, 30, 50, 100].forEach(gb => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `chip${state.usage === gb ? " active" : ""}`;
+        button.textContent = `${gb}GB`;
+        button.addEventListener("click", () => {
+          state.usage = gb;
+          document.querySelector("#usage").value = gb;
+          render();
+        });
+        quick.appendChild(button);
+      });
+
+      const brandFilter = document.querySelector("#brandFilter");
+      brandFilter.innerHTML = "";
+      Object.entries(carrierLabels).forEach(([key, label]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `chip${state.carrier === key ? " active" : ""}`;
+        button.textContent = label;
+        button.addEventListener("click", () => {
+          state.carrier = key;
+          render();
+        });
+        brandFilter.appendChild(button);
+      });
+
+      document.querySelectorAll("[data-discount]").forEach(button => {
+        button.classList.toggle("active", state.discounts.has(button.dataset.discount));
+      });
+    }
+
+    function renderSummary(list) {
+      const best = list[0];
+      const average = list.length
+        ? Math.round(list.reduce((sum, plan) => sum + totalFor(plan), 0) / list.length)
+        : 0;
+
+      document.querySelector("#bestPlan").textContent = best ? best.name : "-";
+      document.querySelector("#bestPrice").textContent = best ? yen(totalFor(best)) : "-";
+      document.querySelector("#bestAnnual").textContent = best ? yen(totalFor(best) * 12) : "-";
+      document.querySelector("#avgPrice").textContent = list.length ? yen(average) : "-";
+      document.querySelector("#planCount").textContent = `${list.length}件`;
+    }
+
+    function renderCards(list) {
+      const cards = document.querySelector("#cards");
+      cards.innerHTML = "";
+
+      list.forEach((plan, index) => {
+        const total = totalFor(plan);
+        const base = usageAdjustedBase(plan);
+        const discount = maxDiscount(plan);
+        const capacity = plan.data === Infinity ? 120 : Math.min(120, plan.name === "ahamo" && state.usage > 30 ? 110 : plan.data);
+        const fitLabel = plan.data === Infinity ? "容量に余裕あり" : `${plan.dataLabel}で利用可`;
+
+        const article = document.createElement("article");
+        article.className = `card${index === 0 ? " best" : ""}`;
+        article.innerHTML = `
+          <div class="brand-bar ${plan.carrier}"></div>
+          <div class="card-top">
+            <div>
+              <div class="carrier">${plan.brand}</div>
+              <h2 class="plan-name">${plan.name}</h2>
+            </div>
+            <div class="badge">${index === 0 ? "最安" : plan.dataLabel}</div>
+          </div>
+          <div>
+            <div class="price">${yen(total).replace("￥", "")}<small>円/月</small></div>
+          </div>
+          <p class="price-note">基本 ${yen(base)}${discount ? `、割引 ${yen(discount)}` : ""}${callCost(plan) ? `、通話 ${yen(callCost(plan))}` : ""}。${plan.note}</p>
+          <div class="data-meter" aria-label="データ容量"><span style="width: ${Math.max(7, Math.min(100, capacity / 120 * 100))}%"></span></div>
+          <div class="specs">
+            <div class="spec"><span>データ</span><strong>${plan.dataLabel}</strong></div>
+            <div class="spec"><span>通話</span><strong>${plan.callIncluded}</strong></div>
+            <div class="spec"><span>基本月額</span><strong>${yen(plan.base)}</strong></div>
+            <div class="spec"><span>年間目安</span><strong>${yen(total * 12)}</strong></div>
+          </div>
+          <div class="card-footer">
+            <span class="fit${plan.data !== Infinity && plan.data < state.usage ? " warn" : ""}">${fitLabel}</span>
+            <a class="source-link" href="${plan.source}" target="_blank" rel="noreferrer">公式</a>
+          </div>
+        `;
+        cards.appendChild(article);
+      });
+    }
+
+    function renderTable(list) {
+      const body = document.querySelector("#tableBody");
+      body.innerHTML = "";
+
+      list.forEach(plan => {
+        const row = document.createElement("tr");
+        const discount = maxDiscount(plan);
+        const total = totalFor(plan);
+        row.innerHTML = `
+          <td>${carrierName(plan.carrier)}</td>
+          <td>${plan.brand} / ${plan.name}</td>
+          <td>${plan.dataLabel}</td>
+          <td>${yen(usageAdjustedBase(plan))}</td>
+          <td>${callCost(plan) ? yen(callCost(plan)) : "追加なし"}</td>
+          <td>${discount ? `-${yen(discount)}` : "-"}</td>
+          <td><strong>${yen(total)}</strong></td>
+          <td><strong>${yen(total * 12)}</strong></td>
+        `;
+        body.appendChild(row);
+      });
+    }
+
+    function render() {
+      document.querySelector("#usageOutput").textContent = state.usage;
+      const list = filteredPlans();
+      renderControls();
+      renderSummary(list);
+      renderCards(list);
+      renderTable(list);
+    }
+
+    document.querySelector("#usage").addEventListener("input", event => {
+      state.usage = Number(event.target.value);
+      render();
+    });
+
+    document.querySelector("#callMode").addEventListener("change", event => {
+      state.callMode = event.target.value;
+      render();
+    });
+
+    document.querySelector("#sortMode").addEventListener("change", event => {
+      state.sort = event.target.value;
+      render();
+    });
+
+    document.querySelectorAll("[data-discount]").forEach(button => {
+      button.addEventListener("click", () => {
+        const key = button.dataset.discount;
+        if (state.discounts.has(key)) {
+          state.discounts.delete(key);
+        } else {
+          state.discounts.add(key);
+        }
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
