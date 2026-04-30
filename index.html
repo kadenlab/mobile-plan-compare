@@ -231,6 +231,57 @@
       line-height: 1.2;
     }
 
+    .quiz-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 18px;
+      padding: 16px;
+    }
+
+    .quiz-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .quiz-question {
+      display: grid;
+      gap: 7px;
+    }
+
+    .quiz-question label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .quiz-result {
+      min-height: 186px;
+      padding: 14px;
+      border: 1px solid #d7e6ea;
+      border-radius: 8px;
+      background: #f5fbfc;
+    }
+
+    .quiz-result h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .quiz-result p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
     .summary {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -703,6 +754,17 @@
             </select>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="panel quiz-panel" aria-label="30秒スマホプラン診断">
+      <div>
+        <p class="panel-title">30秒スマホプラン診断</p>
+        <div class="quiz-grid" id="quiz"></div>
+      </div>
+      <div class="quiz-result" id="quizResult">
+        <h3>おすすめを診断</h3>
+        <p>使い方を選ぶと、比較条件に自動反映して候補を出します。</p>
       </div>
     </section>
 
@@ -1258,6 +1320,12 @@
       discounts: new Set(),
       cardType: "none",
       compareMode: "noMvno",
+      quiz: {
+        data: "normal",
+        call: "none",
+        support: "any",
+        bundle: "cheap"
+      },
       docomoLines: 1,
       docomoYears: 0,
       auLines: 1,
@@ -1283,6 +1351,45 @@
       mobileRouter: "モバイルルーター",
       tenG: "10G"
     };
+
+    const quizQuestions = [
+      {
+        key: "data",
+        label: "ギガ",
+        options: [
+          ["light", "少なめ"],
+          ["normal", "普通"],
+          ["heavy", "多め"],
+          ["unlimited", "無制限"]
+        ]
+      },
+      {
+        key: "call",
+        label: "通話",
+        options: [
+          ["none", "少ない"],
+          ["five", "短め多い"],
+          ["unlimited", "長電話"]
+        ]
+      },
+      {
+        key: "support",
+        label: "店舗",
+        options: [
+          ["need", "必要"],
+          ["any", "どちらでも"],
+          ["online", "不要"]
+        ]
+      },
+      {
+        key: "bundle",
+        label: "まとめ方",
+        options: [
+          ["bundle", "家族/ネット重視"],
+          ["cheap", "単体で安く"]
+        ]
+      }
+    ];
 
     const yen = value => new Intl.NumberFormat("ja-JP", {
       style: "currency",
@@ -1488,6 +1595,69 @@
         if (state.sort === "carrier") return `${a.carrier}${a.brand}`.localeCompare(`${b.carrier}${b.brand}`, "ja");
         return totalFor(a) - totalFor(b);
       });
+
+    function applyQuizToConditions() {
+      const dataUsage = { light: 3, normal: 30, heavy: 50, unlimited: 100 };
+      state.usage = dataUsage[state.quiz.data] || 30;
+      document.querySelector("#usage").value = state.usage;
+      state.callMode = state.quiz.call;
+      document.querySelector("#callMode").value = state.callMode;
+
+      if (state.quiz.bundle === "bundle") {
+        state.discounts.add("family");
+        state.discounts.add("internet");
+      } else {
+        state.discounts.delete("family");
+        state.discounts.delete("internet");
+      }
+    }
+
+    function renderQuiz() {
+      const quiz = document.querySelector("#quiz");
+      quiz.innerHTML = "";
+
+      quizQuestions.forEach(question => {
+        const row = document.createElement("div");
+        row.className = "quiz-question";
+        row.innerHTML = `<label>${question.label}</label>`;
+        const options = document.createElement("div");
+        options.className = "quiz-options";
+
+        question.options.forEach(([value, label]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `chip${state.quiz[question.key] === value ? " active" : ""}`;
+          button.textContent = label;
+          button.addEventListener("click", () => {
+            state.quiz[question.key] = value;
+            applyQuizToConditions();
+            render();
+          });
+          options.appendChild(button);
+        });
+
+        row.appendChild(options);
+        quiz.appendChild(row);
+      });
+
+      const best = filteredPlans()[0];
+      const result = document.querySelector("#quizResult");
+      if (!best) {
+        result.innerHTML = `<h3>候補なし</h3><p>条件を少し広げると候補が出ます。会社や比較対象を戻してみてください。</p>`;
+        return;
+      }
+
+      const reason = [
+        state.quiz.data === "unlimited" ? "大容量重視" : state.quiz.data === "light" ? "小容量重視" : "標準的なデータ量",
+        state.quiz.call === "unlimited" ? "かけ放題込みで比較" : state.quiz.call === "five" ? "短め通話込みで比較" : "通話少なめ想定",
+        state.quiz.bundle === "bundle" ? "家族/ネット割を反映" : "単体料金を重視"
+      ].join("・");
+
+      result.innerHTML = `
+        <h3>${best.name}</h3>
+        <p>${best.brand} の候補です。月額目安は <strong>${yen(totalFor(best))}</strong>、年間目安は <strong>${yen(totalFor(best) * 12)}</strong>。${reason}。</p>
+      `;
+    }
 
     function renderControls() {
       const quick = document.querySelector("#quickGb");
@@ -1711,6 +1881,7 @@
       renderCards(list);
       renderInternetCards();
       renderTable(list);
+      renderQuiz();
     }
 
     document.querySelector("#usage").addEventListener("input", event => {
