@@ -193,6 +193,44 @@
       flex-wrap: wrap;
     }
 
+    .mode-panel {
+      display: grid;
+      grid-template-columns: 1fr 1.7fr;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 18px;
+      padding: 16px;
+    }
+
+    .mode-panel select {
+      width: 100%;
+      min-width: 0;
+      padding: 7px 9px;
+      font-size: 13px;
+    }
+
+    .detail-conditions {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid #e4eaee;
+      border-radius: 8px;
+      background: #f9fbfc;
+    }
+
+    .mini-field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .mini-field label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
     .summary {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -428,6 +466,13 @@
       gap: 12px;
     }
 
+    .internet-filter {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
     .internet-card {
       position: relative;
       overflow: hidden;
@@ -507,7 +552,8 @@
 
     @media (max-width: 900px) {
       header,
-      .controls {
+      .controls,
+      .mode-panel {
         grid-template-columns: 1fr;
       }
 
@@ -545,6 +591,10 @@
       .section-heading {
         align-items: stretch;
         flex-direction: column;
+      }
+
+      .detail-conditions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .gb-number {
@@ -593,12 +643,64 @@
             <option value="unlimited">長電話が多い</option>
           </select>
         </div>
+        <div class="option-row">
+          <label for="cardType">カード</label>
+          <select id="cardType">
+            <option value="none">なし</option>
+            <option value="free">無料カード</option>
+            <option value="paid">有料カード</option>
+          </select>
+        </div>
         <div>
           <p class="panel-title">割引条件</p>
           <div class="toggle-list">
             <button class="icon-button" type="button" data-discount="family">家族</button>
-            <button class="icon-button" type="button" data-discount="home">光/でんき</button>
-            <button class="icon-button" type="button" data-discount="card">カード</button>
+            <button class="icon-button" type="button" data-discount="internet">ネットセット割</button>
+            <button class="icon-button" type="button" data-discount="electric">でんき</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel mode-panel" aria-label="比較モード">
+      <div>
+        <p class="panel-title">比較対象</p>
+        <div class="toggle-list" id="compareModes"></div>
+      </div>
+      <div>
+        <p class="panel-title">家族・長期条件</p>
+        <div class="detail-conditions">
+          <div class="mini-field">
+            <label for="docomoLines">ドコモ回線</label>
+            <select id="docomoLines">
+              <option value="1">1回線</option>
+              <option value="2">2回線</option>
+              <option value="3">3回線以上</option>
+            </select>
+          </div>
+          <div class="mini-field">
+            <label for="docomoYears">ドコモ利用</label>
+            <select id="docomoYears">
+              <option value="0">10年未満</option>
+              <option value="10">10年以上</option>
+              <option value="20">20年以上</option>
+            </select>
+          </div>
+          <div class="mini-field">
+            <label for="auLines">au/UQ回線</label>
+            <select id="auLines">
+              <option value="1">1回線</option>
+              <option value="2">2回線</option>
+              <option value="3">3回線以上</option>
+            </select>
+          </div>
+          <div class="mini-field">
+            <label for="softbankLines">SB/Y!回線</label>
+            <select id="softbankLines">
+              <option value="1">1回線</option>
+              <option value="2">2回線</option>
+              <option value="3">3回線以上</option>
+            </select>
           </div>
         </div>
       </div>
@@ -644,6 +746,7 @@
           <p class="panel-title">スマホセット割も見る</p>
           <h2>家のネット比較</h2>
         </div>
+        <div class="internet-filter" id="internetFilter"></div>
         <div class="option-row">
           <label for="homeType">住まい</label>
           <select id="homeType">
@@ -713,9 +816,23 @@
         callIncluded: "家族間無料",
         callFive: 880,
         callUnlimited: 1980,
-        discounts: { family: 1210, home: 1210, card: 550 },
+        discounts: { family: 1210, internet: 1210, electric: 110, card: 550 },
         note: "段階制。1GB以下は5,698円、1〜3GBは6,798円。",
         source: "https://www.docomo.ne.jp/charge/docomo_max/"
+      },
+      {
+        carrier: "docomo",
+        brand: "ドコモ",
+        name: "ドコモ mini 4GB",
+        data: 4,
+        dataLabel: "4GB",
+        base: 2750,
+        callIncluded: "従量制",
+        callFive: 880,
+        callUnlimited: 1980,
+        discounts: { internet: 1210, electric: 110, card: 550 },
+        note: "小容量向け。各種割引適用後は880円目安。",
+        source: "https://www.docomo.ne.jp/charge/docomo_mini/"
       },
       {
         carrier: "docomo",
@@ -727,8 +844,8 @@
         callIncluded: "従量制",
         callFive: 880,
         callUnlimited: 1980,
-        discounts: { home: 1210, card: 550 },
-        note: "小容量向け。4GB版は2,750円。",
+        discounts: { internet: 1210, electric: 110, card: 550 },
+        note: "小容量向け。各種割引適用後は1,980円目安。",
         source: "https://www.docomo.ne.jp/charge/docomo_mini/"
       },
       {
@@ -755,7 +872,7 @@
         callIncluded: "従量制",
         callFive: 880,
         callUnlimited: 1980,
-        discounts: { family: 1210, home: 1100, card: 220 },
+        discounts: { family: 1210, internet: 1100, card: 220 },
         note: "200GB超は最大5Mbps制限。テザリング等は60GBまで。",
         source: "https://www.au.com/mobile/charge/smartphone/plan/auvaluelink/"
       },
@@ -769,7 +886,7 @@
         callIncluded: "従量制",
         callFive: 880,
         callUnlimited: 1980,
-        discounts: { family: 550, home: 1100, card: 220, lowUse: 1100 },
+        discounts: { family: 550, internet: 1100, electric: 1100, card: 220, lowUse: 1100 },
         note: "5GB以下は追加割引あり。自宅セット割と家族割は重複不可。",
         source: "https://www.uqwimax.jp/mobile/plan/tokutoku2/"
       },
@@ -785,7 +902,7 @@
         callUnlimited: 1100,
         discounts: {},
         note: "10分通話とPontaパス込み。",
-        source: "https://www.uqwimax.jp/mobile/newplan2025/"
+        source: "https://www.uqwimax.jp/mobile/plan/komikomi-pv/"
       },
       {
         carrier: "au",
@@ -811,7 +928,7 @@
         callIncluded: "従量制",
         callFive: 880,
         callUnlimited: 1980,
-        discounts: { family: 1210, home: 1100, card: 187 },
+        discounts: { family: 1210, internet: 1100, card: 187 },
         note: "2GB以下は自動割引。2026年7月に料金改定予定。",
         source: "https://www.softbank.jp/mobile/price_plan/"
       },
@@ -825,8 +942,22 @@
         callIncluded: "従量制",
         callFive: 880,
         callUnlimited: 1980,
-        discounts: { family: 1100, home: 1650, card: 330 },
+        discounts: { family: 1100, internet: 1650, card: 330 },
         note: "Sは5GB、Lは35GB。家族割とおうち割は重複不可。",
+        source: "https://www.ymobile.jp/plan/smartphone/"
+      },
+      {
+        carrier: "softbank",
+        brand: "Y!mobile",
+        name: "シンプル3 L",
+        data: 35,
+        dataLabel: "35GB",
+        base: 5258,
+        callIncluded: "10分無料",
+        callFive: 0,
+        callUnlimited: 1100,
+        discounts: { family: 1100, internet: 1650, electric: 1100, card: 330 },
+        note: "35GBと10分通話込み。家族割・おうち割・でんき割は重複不可。",
         source: "https://www.ymobile.jp/plan/smartphone/"
       },
       {
@@ -955,6 +1086,7 @@
     const internetPlans = [
       {
         carrier: "docomo",
+        type: "fiber",
         name: "ドコモ光 1ギガ",
         house: 5720,
         mansion: 4400,
@@ -969,6 +1101,7 @@
       },
       {
         carrier: "docomo",
+        type: "tenG",
         name: "ドコモ光 10ギガ",
         house: 6380,
         mansion: 6380,
@@ -983,6 +1116,7 @@
       },
       {
         carrier: "au",
+        type: "fiber",
         name: "auひかり",
         house: 5610,
         mansion: 4180,
@@ -997,6 +1131,7 @@
       },
       {
         carrier: "au",
+        type: "tenG",
         name: "auひかり 10ギガ",
         house: 7018,
         mansion: 7018,
@@ -1011,6 +1146,7 @@
       },
       {
         carrier: "softbank",
+        type: "fiber",
         name: "SoftBank 光",
         house: 5720,
         mansion: 4180,
@@ -1025,6 +1161,7 @@
       },
       {
         carrier: "softbank",
+        type: "tenG",
         name: "SoftBank 光 10ギガ",
         house: 6380,
         mansion: 6380,
@@ -1039,6 +1176,7 @@
       },
       {
         carrier: "softbank",
+        type: "router",
         name: "SoftBank Air",
         house: 5368,
         mansion: 5368,
@@ -1053,6 +1191,7 @@
       },
       {
         carrier: "docomo",
+        type: "router",
         name: "ドコモ home 5G",
         house: 5280,
         mansion: 5280,
@@ -1067,6 +1206,7 @@
       },
       {
         carrier: "au",
+        type: "mobileRouter",
         name: "UQ WiMAX +5G",
         house: 4598,
         mansion: 4598,
@@ -1081,6 +1221,7 @@
       },
       {
         carrier: "rakuten",
+        type: "router",
         name: "Rakuten Turbo",
         house: 4840,
         mansion: 4840,
@@ -1095,6 +1236,7 @@
       },
       {
         carrier: "mvno",
+        type: "fiber",
         name: "NURO 光 2ギガ",
         house: 5500,
         mansion: 3850,
@@ -1114,10 +1256,32 @@
       usage: 30,
       callMode: "none",
       discounts: new Set(),
-      carrier: "all",
+      cardType: "none",
+      compareMode: "noMvno",
+      docomoLines: 1,
+      docomoYears: 0,
+      auLines: 1,
+      softbankLines: 1,
+      carriers: new Set(["docomo", "au", "softbank", "rakuten", "mvno"]),
       sort: "price",
       homeType: "mansion",
-      includeInternetOptions: true
+      includeInternetOptions: true,
+      internetType: "all"
+    };
+
+    const compareModeLabels = {
+      main: "メインブランド",
+      sub: "サブブランド",
+      noMvno: "全体・格安なし",
+      all: "全体・格安あり"
+    };
+
+    const internetTypeLabels = {
+      all: "すべて",
+      fiber: "光回線",
+      router: "ホームルーター",
+      mobileRouter: "モバイルルーター",
+      tenG: "10G"
     };
 
     const yen = value => new Intl.NumberFormat("ja-JP", {
@@ -1135,9 +1299,52 @@
     })[carrier] || carrier;
 
     const internetMatchesCarrier = plan =>
-      state.carrier === "all" ||
-      plan.carrier === state.carrier ||
-      (plan.compatibleCarriers || []).includes(state.carrier);
+      state.carriers.has(plan.carrier) ||
+      (plan.compatibleCarriers || []).some(carrier => state.carriers.has(carrier));
+
+    const mobileMatchesCarrier = plan => state.carriers.has(plan.carrier);
+
+    const planGroup = plan => {
+      if (["ドコモ", "au", "ソフトバンク"].includes(plan.brand)) return "main";
+      if (["ahamo", "povo", "UQ mobile", "Y!mobile", "LINEMO"].includes(plan.brand)) return "sub";
+      if (plan.carrier === "mvno") return "mvno";
+      return "other";
+    };
+
+    const matchesCompareMode = plan => {
+      const group = planGroup(plan);
+      if (state.compareMode === "main") return group === "main";
+      if (state.compareMode === "sub") return group === "sub";
+      if (state.compareMode === "noMvno") return group !== "mvno";
+      return true;
+    };
+
+    const docomoCardDiscount = () => {
+      if (state.cardType === "paid") return 550;
+      if (state.cardType === "free") return 220;
+      return 0;
+    };
+
+    const ahamoBonusData = () => {
+      if (state.cardType === "paid") return 5;
+      if (state.cardType === "free") return 1;
+      return 0;
+    };
+
+    const tieredFamilyDiscount = lines => {
+      if (lines >= 3) return 1210;
+      if (lines >= 2) return 660;
+      return 0;
+    };
+
+    const effectiveData = plan => {
+      if (plan.data === Infinity) return Infinity;
+      if (plan.name === "ahamo") {
+        const bonus = ahamoBonusData();
+        return state.usage > 30 + bonus ? 110 + bonus : 30 + bonus;
+      }
+      return plan.data;
+    };
 
     const internetBasePrice = plan => state.homeType === "house" ? plan.house : plan.mansion;
     const internetOptionCost = plan => state.includeInternetOptions ? (plan.optionCost || 0) : 0;
@@ -1149,22 +1356,53 @@
       let amount = 0;
       const d = plan.discounts || {};
 
+      if (plan.carrier === "docomo") {
+        if (state.discounts.has("internet")) amount += d.internet || 0;
+        if (state.discounts.has("electric")) amount += d.electric || 0;
+        if (plan.brand === "ドコモ") amount += docomoCardDiscount();
+
+        if (plan.name === "ドコモ MAX") {
+          if (state.discounts.has("family")) {
+            amount += state.docomoLines >= 3 ? 1210 : state.docomoLines >= 2 ? 550 : 0;
+          }
+
+          if (state.docomoYears >= 20) {
+            amount += 220;
+          } else if (state.docomoYears >= 10) {
+            amount += 110;
+          }
+        }
+
+        return amount;
+      }
+
       if (plan.carrier === "au" && plan.brand === "UQ mobile") {
-        if (state.discounts.has("home")) {
-          amount += d.home || 0;
+        if (state.discounts.has("internet") || state.discounts.has("electric")) {
+          amount += Math.max(d.internet || 0, d.electric || 0);
         } else if (state.discounts.has("family")) {
-          amount += d.family || 0;
+          amount += state.auLines >= 2 ? (d.family || 0) : 0;
         }
+      } else if (plan.carrier === "au" && plan.brand === "au") {
+        if (state.discounts.has("family")) amount += tieredFamilyDiscount(state.auLines);
+        if (state.discounts.has("internet")) amount += d.internet || 0;
+        if (state.discounts.has("electric")) amount += d.electric || 0;
       } else if (plan.carrier === "softbank" && plan.brand === "Y!mobile") {
-        if (state.discounts.has("home")) {
-          amount += d.home || 0;
+        if (state.discounts.has("internet")) {
+          amount += d.internet || 0;
+        } else if (state.discounts.has("electric")) {
+          amount += d.electric || 0;
         } else if (state.discounts.has("family")) {
-          amount += d.family || 0;
+          amount += state.softbankLines >= 2 ? (d.family || 0) : 0;
         }
+      } else if (plan.carrier === "softbank" && plan.brand === "ソフトバンク") {
+        if (state.discounts.has("family")) amount += tieredFamilyDiscount(state.softbankLines);
+        if (state.discounts.has("internet")) amount += d.internet || 0;
+        if (state.discounts.has("electric")) amount += d.electric || 0;
       } else {
         for (const key of state.discounts) amount += d[key] || 0;
       }
 
+      if (state.cardType !== "none") amount += d.card || 0;
       if (state.usage <= 5 && d.lowUse) amount += d.lowUse;
       return amount;
     };
@@ -1174,7 +1412,7 @@
         if (state.usage <= 1) return 5698;
         if (state.usage <= 3) return 6798;
       }
-      if (plan.name === "ahamo" && state.usage > 30) return 4950;
+      if (plan.name === "ahamo" && state.usage > 30 + ahamoBonusData()) return 4950;
       if (plan.name === "LINEMOベストプランV" && state.usage <= 10) {
         return state.usage <= 3 ? 990 : 2090;
       }
@@ -1217,11 +1455,10 @@
     };
 
     const hasEnoughData = plan => {
-      if (plan.data === Infinity) return true;
-      if (plan.name === "ahamo" && state.usage <= 110) return true;
+      if (effectiveData(plan) === Infinity) return true;
       if (plan.name === "povo 30GB" && state.usage <= 100) return true;
       if (plan.name === "合理的みんなのプラン" && state.usage <= 50) return true;
-      return plan.data >= state.usage;
+      return effectiveData(plan) >= state.usage;
     };
 
     const callCost = plan => {
@@ -1230,13 +1467,24 @@
       return 0;
     };
 
+    const callOptionLabel = plan => {
+      if (state.callMode === "unlimited") {
+        return plan.callUnlimited ? `かけ放題 +${yen(plan.callUnlimited)}` : "かけ放題込み";
+      }
+      if (state.callMode === "five") {
+        return plan.callFive ? `短時間通話 +${yen(plan.callFive)}` : "5〜10分込み";
+      }
+      return plan.callIncluded;
+    };
+
     const totalFor = plan => Math.max(0, usageAdjustedBase(plan) + callCost(plan) - maxDiscount(plan));
 
     const filteredPlans = () => plans
-      .filter(plan => state.carrier === "all" || plan.carrier === state.carrier)
+      .filter(matchesCompareMode)
+      .filter(mobileMatchesCarrier)
       .filter(hasEnoughData)
       .sort((a, b) => {
-        if (state.sort === "data") return (b.data === Infinity ? 999 : b.data) - (a.data === Infinity ? 999 : a.data);
+        if (state.sort === "data") return (effectiveData(b) === Infinity ? 999 : effectiveData(b)) - (effectiveData(a) === Infinity ? 999 : effectiveData(a));
         if (state.sort === "carrier") return `${a.carrier}${a.brand}`.localeCompare(`${b.carrier}${b.brand}`, "ja");
         return totalFor(a) - totalFor(b);
       });
@@ -1262,17 +1510,52 @@
       Object.entries(carrierLabels).forEach(([key, label]) => {
         const button = document.createElement("button");
         button.type = "button";
-        button.className = `chip${state.carrier === key ? " active" : ""}`;
+        button.className = `chip${(key === "all" ? state.carriers.size === Object.keys(carrierLabels).length - 1 : state.carriers.has(key)) ? " active" : ""}`;
         button.textContent = label;
         button.addEventListener("click", () => {
-          state.carrier = key;
+          if (key === "all") {
+            state.carriers = new Set(["docomo", "au", "softbank", "rakuten", "mvno"]);
+          } else if (state.carriers.has(key)) {
+            state.carriers.delete(key);
+            if (!state.carriers.size) state.carriers.add(key);
+          } else {
+            state.carriers.add(key);
+          }
           render();
         });
         brandFilter.appendChild(button);
       });
 
+      const compareModes = document.querySelector("#compareModes");
+      compareModes.innerHTML = "";
+      Object.entries(compareModeLabels).forEach(([key, label]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `chip${state.compareMode === key ? " active" : ""}`;
+        button.textContent = label;
+        button.addEventListener("click", () => {
+          state.compareMode = key;
+          render();
+        });
+        compareModes.appendChild(button);
+      });
+
       document.querySelectorAll("[data-discount]").forEach(button => {
         button.classList.toggle("active", state.discounts.has(button.dataset.discount));
+      });
+
+      const internetFilter = document.querySelector("#internetFilter");
+      internetFilter.innerHTML = "";
+      Object.entries(internetTypeLabels).forEach(([key, label]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `chip${state.internetType === key ? " active" : ""}`;
+        button.textContent = label;
+        button.addEventListener("click", () => {
+          state.internetType = key;
+          render();
+        });
+        internetFilter.appendChild(button);
       });
     }
 
@@ -1297,8 +1580,12 @@
         const total = totalFor(plan);
         const base = usageAdjustedBase(plan);
         const discount = maxDiscount(plan);
-        const capacity = plan.data === Infinity ? 120 : Math.min(120, plan.name === "ahamo" && state.usage > 30 ? 110 : plan.data);
-        const fitLabel = plan.data === Infinity ? "容量に余裕あり" : `${plan.dataLabel}で利用可`;
+        const dataCap = effectiveData(plan);
+        const capacity = dataCap === Infinity ? 120 : Math.min(120, dataCap);
+        const dataLabel = plan.name === "ahamo" && ahamoBonusData()
+          ? `${dataCap}GB`
+          : plan.dataLabel;
+        const fitLabel = dataCap === Infinity ? "容量に余裕あり" : `${dataLabel}で利用可`;
 
         const article = document.createElement("article");
         article.className = `card${index === 0 ? " best" : ""}`;
@@ -1309,7 +1596,7 @@
               <div class="carrier">${plan.brand}</div>
               <h2 class="plan-name">${plan.name}</h2>
             </div>
-            <div class="badge">${index === 0 ? "最安" : plan.dataLabel}</div>
+            <div class="badge">${index === 0 ? "最安" : dataLabel}</div>
           </div>
           <div>
             <div class="price">${yen(total).replace("￥", "")}<small>円/月</small></div>
@@ -1317,8 +1604,8 @@
           <p class="price-note">基本 ${yen(base)}${discount ? `、割引 ${yen(discount)}` : ""}${callCost(plan) ? `、通話 ${yen(callCost(plan))}` : ""}。${plan.note}</p>
           <div class="data-meter" aria-label="データ容量"><span style="width: ${Math.max(7, Math.min(100, capacity / 120 * 100))}%"></span></div>
           <div class="specs">
-            <div class="spec"><span>データ</span><strong>${plan.dataLabel}</strong></div>
-            <div class="spec"><span>通話</span><strong>${plan.callIncluded}</strong></div>
+            <div class="spec"><span>データ</span><strong>${dataLabel}</strong></div>
+            <div class="spec"><span>通話</span><strong>${callOptionLabel(plan)}</strong></div>
             <div class="spec"><span>基本月額</span><strong>${yen(plan.base)}</strong></div>
             <div class="spec"><span>年間目安</span><strong>${yen(total * 12)}</strong></div>
           </div>
@@ -1339,12 +1626,16 @@
         const row = document.createElement("tr");
         const discount = maxDiscount(plan);
         const total = totalFor(plan);
+        const dataCap = effectiveData(plan);
+        const dataLabel = plan.name === "ahamo" && ahamoBonusData()
+          ? `${dataCap}GB`
+          : plan.dataLabel;
         row.innerHTML = `
           <td>${carrierName(plan.carrier)}</td>
           <td>${plan.brand} / ${plan.name}</td>
-          <td>${plan.dataLabel}</td>
+          <td>${dataLabel}</td>
           <td>${yen(usageAdjustedBase(plan))}</td>
-          <td>${callCost(plan) ? yen(callCost(plan)) : "追加なし"}</td>
+          <td>${callOptionLabel(plan)}</td>
           <td>${discount ? `-${yen(discount)}` : "-"}</td>
           <td><strong>${yen(total)}</strong></td>
           <td><strong>${yen(total * 12)}</strong></td>
@@ -1358,6 +1649,7 @@
       const mobileTotal = bestMobile ? totalFor(bestMobile) : 0;
       const sorted = internetPlans
         .filter(internetMatchesCarrier)
+        .filter(plan => state.internetType === "all" || plan.type === state.internetType)
         .sort((a, b) => internetPrice(a) - internetPrice(b));
       const cards = document.querySelector("#internetCards");
       cards.innerHTML = "";
@@ -1419,6 +1711,31 @@
 
     document.querySelector("#callMode").addEventListener("change", event => {
       state.callMode = event.target.value;
+      render();
+    });
+
+    document.querySelector("#cardType").addEventListener("change", event => {
+      state.cardType = event.target.value;
+      render();
+    });
+
+    document.querySelector("#docomoLines").addEventListener("change", event => {
+      state.docomoLines = Number(event.target.value);
+      render();
+    });
+
+    document.querySelector("#docomoYears").addEventListener("change", event => {
+      state.docomoYears = Number(event.target.value);
+      render();
+    });
+
+    document.querySelector("#auLines").addEventListener("change", event => {
+      state.auLines = Number(event.target.value);
+      render();
+    });
+
+    document.querySelector("#softbankLines").addEventListener("change", event => {
+      state.softbankLines = Number(event.target.value);
       render();
     });
 
