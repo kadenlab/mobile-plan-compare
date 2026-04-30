@@ -403,10 +403,75 @@
       overflow-x: auto;
     }
 
+    .internet-section {
+      margin-top: 22px;
+      padding: 18px;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .internet-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .internet-card {
+      position: relative;
+      overflow: hidden;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      display: grid;
+      gap: 12px;
+    }
+
+    .internet-card h3 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .internet-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      background: #eef4f6;
+      color: var(--muted);
+      padding: 5px 8px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .internet-note {
+      margin: 0;
+      min-height: 42px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 850px;
+      min-width: 980px;
       background: var(--panel);
     }
 
@@ -454,6 +519,10 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      .internet-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .date-pill {
         justify-self: start;
       }
@@ -468,8 +537,14 @@
       .usage-grid,
       .option-row,
       .summary,
-      .cards {
+      .cards,
+      .internet-grid {
         grid-template-columns: 1fr;
+      }
+
+      .section-heading {
+        align-items: stretch;
+        flex-direction: column;
       }
 
       .gb-number {
@@ -563,6 +638,26 @@
 
     <section class="cards" id="cards" aria-label="プランカード"></section>
 
+    <section class="panel internet-section" aria-label="家のネット比較">
+      <div class="section-heading">
+        <div>
+          <p class="panel-title">スマホセット割も見る</p>
+          <h2>家のネット比較</h2>
+        </div>
+        <div class="option-row">
+          <label for="homeType">住まい</label>
+          <select id="homeType">
+            <option value="mansion">マンション</option>
+            <option value="house">戸建て</option>
+          </select>
+        </div>
+        <div class="toggle-list">
+          <button class="icon-button active" type="button" id="internetOptionToggle">必須オプション込み</button>
+        </div>
+      </div>
+      <div class="internet-grid" id="internetCards"></div>
+    </section>
+
     <section class="panel table-panel" aria-label="料金比較表">
       <table>
         <thead>
@@ -595,7 +690,14 @@
       <a href="https://network.mobile.rakuten.co.jp/fee/saikyo-plan/" target="_blank" rel="noreferrer">楽天モバイル</a>,
       <a href="https://mineo.jp/price/" target="_blank" rel="noreferrer">mineo</a>,
       <a href="https://www.iijmio.jp/hdc/spec/index.html" target="_blank" rel="noreferrer">IIJmio</a>,
-      <a href="https://www.nihontsushin.com/plan/" target="_blank" rel="noreferrer">日本通信SIM</a>。
+      <a href="https://www.nihontsushin.com/plan/" target="_blank" rel="noreferrer">日本通信SIM</a>,
+      <a href="https://www.docomo.ne.jp/internet/hikari/charge/" target="_blank" rel="noreferrer">ドコモ光</a>,
+      <a href="https://www.au.com/internet/auhikari_1g/charge/zuttogigatoku/" target="_blank" rel="noreferrer">auひかり</a>,
+      <a href="https://www.softbank.jp/support/faq/view/14908" target="_blank" rel="noreferrer">SoftBank 光</a>,
+      <a href="https://www.docomo.ne.jp/home_5g/charge/" target="_blank" rel="noreferrer">home 5G</a>,
+      <a href="https://www.uqwimax.jp/wimax/plan/gigahodai_plus_s/" target="_blank" rel="noreferrer">UQ WiMAX</a>,
+      <a href="https://www.nuro.jp/hikari/price/" target="_blank" rel="noreferrer">NURO 光</a>。
+      おうち割・自宅セット割の必須オプションは代表的な最小構成の目安です。電話サービス、10G対応機器、建物タイプ、受付時期で変わるため、申込前に公式条件を確認してください。
     </footer>
   </main>
 
@@ -850,12 +952,171 @@
       mvno: "格安SIM"
     };
 
+    const internetPlans = [
+      {
+        carrier: "docomo",
+        name: "ドコモ光 1ギガ",
+        house: 5720,
+        mansion: 4400,
+        speed: "最大1Gbps",
+        construction: "工事あり",
+        match: "ドコモ",
+        setDiscount: "ドコモ MAX / miniなど最大1,210円",
+        requiredOption: "追加必須オプションなし",
+        optionCost: 0,
+        note: "ドコモ回線の家族が多いほどセット割の効果が出やすい。",
+        source: "https://www.docomo.ne.jp/internet/hikari/charge/"
+      },
+      {
+        carrier: "docomo",
+        name: "ドコモ光 10ギガ",
+        house: 6380,
+        mansion: 6380,
+        speed: "最大10Gbps",
+        construction: "工事あり",
+        match: "ドコモ",
+        setDiscount: "ドコモ MAX / miniなど最大1,210円",
+        requiredOption: "追加必須オプションなし",
+        optionCost: 0,
+        note: "10G対応エリア・対応ルーターが必要。戸建て/マンション同額目安。",
+        source: "https://www.docomo.ne.jp/internet/hikari/charge/"
+      },
+      {
+        carrier: "au",
+        name: "auひかり",
+        house: 5610,
+        mansion: 4180,
+        speed: "最大1Gbps",
+        construction: "工事あり",
+        match: "au / UQ mobile",
+        setDiscount: "auスマートバリュー / 自宅セット割",
+        requiredOption: "ひかり電話 770円/月",
+        optionCost: 770,
+        note: "提供エリアとマンション設備で料金・速度タイプが変わる。",
+        source: "https://www.au.com/internet/auhikari_1g/charge/zuttogigatoku/"
+      },
+      {
+        carrier: "au",
+        name: "auひかり 10ギガ",
+        house: 7018,
+        mansion: 7018,
+        speed: "最大10Gbps",
+        construction: "工事あり",
+        match: "au / UQ mobile",
+        setDiscount: "auスマートバリュー / 自宅セット割",
+        requiredOption: "ひかり電話込み目安",
+        optionCost: 0,
+        note: "ホーム向け中心。公式表示はネット＋電話の実質月額目安。",
+        source: "https://www.au.com/internet/auhikari_10-5g/charge/"
+      },
+      {
+        carrier: "softbank",
+        name: "SoftBank 光",
+        house: 5720,
+        mansion: 4180,
+        speed: "最大1Gbps",
+        construction: "工事あり",
+        match: "SoftBank / Y!mobile",
+        setDiscount: "おうち割 光セット",
+        requiredOption: "指定オプション 550円/月〜",
+        optionCost: 550,
+        note: "Y!mobile家族なら割引額が大きく、固定回線との相性が良い。",
+        source: "https://www.softbank.jp/support/faq/view/14908"
+      },
+      {
+        carrier: "softbank",
+        name: "SoftBank 光 10ギガ",
+        house: 6380,
+        mansion: 6380,
+        speed: "最大10Gbps",
+        construction: "工事あり",
+        match: "SoftBank / Y!mobile",
+        setDiscount: "おうち割 光セット",
+        requiredOption: "指定オプション 550円/月〜 + 10G機器 550円/月",
+        optionCost: 1100,
+        note: "10Gは基本料金に加えてホームゲートウェイ等の費用も確認。",
+        source: "https://www.softbank.jp/internet/sbhikari/price/"
+      },
+      {
+        carrier: "softbank",
+        name: "SoftBank Air",
+        house: 5368,
+        mansion: 5368,
+        speed: "5G/4G",
+        construction: "工事不要",
+        match: "SoftBank / Y!mobile",
+        setDiscount: "おうち割 光セット",
+        requiredOption: "指定オプション不要",
+        optionCost: 0,
+        note: "コンセントに挿すだけ。速度は住所や電波状況に左右される。",
+        source: "https://www.softbank.jp/internet/air/price/"
+      },
+      {
+        carrier: "docomo",
+        name: "ドコモ home 5G",
+        house: 5280,
+        mansion: 5280,
+        speed: "5G/4G",
+        construction: "工事不要",
+        match: "ドコモ",
+        setDiscount: "home 5G セット割",
+        requiredOption: "追加必須オプションなし",
+        optionCost: 0,
+        note: "工事なしで使える。登録住所以外での利用には注意。",
+        source: "https://www.docomo.ne.jp/home_5g/charge/"
+      },
+      {
+        carrier: "au",
+        name: "UQ WiMAX +5G",
+        house: 4598,
+        mansion: 4598,
+        speed: "下り最大4.2Gbps",
+        construction: "工事不要",
+        match: "au / UQ mobile",
+        setDiscount: "自宅セット割 / auスマートバリュー対象",
+        requiredOption: "追加必須オプションなし",
+        optionCost: 0,
+        note: "13カ月割引後の目安。通常月額は5,280円、端末代などは別途。",
+        source: "https://www.uqwimax.jp/wimax/plan/gigahodai_plus_s/"
+      },
+      {
+        carrier: "rakuten",
+        name: "Rakuten Turbo",
+        house: 4840,
+        mansion: 4840,
+        speed: "5G/4G",
+        construction: "工事不要",
+        match: "楽天モバイル",
+        setDiscount: "スマホ料金の直接割引は弱め",
+        requiredOption: "追加必須オプションなし",
+        optionCost: 0,
+        note: "楽天経済圏向け。端末代は別途確認が必要。",
+        source: "https://network.mobile.rakuten.co.jp/internet/turbo/fee/"
+      },
+      {
+        carrier: "mvno",
+        name: "NURO 光 2ギガ",
+        house: 5500,
+        mansion: 3850,
+        speed: "最大2Gbps",
+        construction: "工事あり",
+        match: "格安SIM / NUROモバイル",
+        setDiscount: "NUROモバイル等と相性あり",
+        requiredOption: "スマホセット割は契約先条件を確認",
+        optionCost: 0,
+        note: "速度重視向き。提供エリアと建物対応の確認が必須。",
+        source: "https://www.nuro.jp/hikari/price/"
+      }
+    ];
+
     const state = {
       usage: 30,
       callMode: "none",
       discounts: new Set(),
       carrier: "all",
-      sort: "price"
+      sort: "price",
+      homeType: "mansion",
+      includeInternetOptions: true
     };
 
     const yen = value => new Intl.NumberFormat("ja-JP", {
@@ -871,6 +1132,12 @@
       rakuten: "楽天",
       mvno: "格安SIM"
     })[carrier] || carrier;
+
+    const internetBasePrice = plan => state.homeType === "house" ? plan.house : plan.mansion;
+    const internetOptionCost = plan => state.includeInternetOptions ? (plan.optionCost || 0) : 0;
+    const internetPrice = plan => internetBasePrice(plan) + internetOptionCost(plan);
+
+    const bestMobilePlan = () => filteredPlans()[0] || null;
 
     const maxDiscount = plan => {
       let amount = 0;
@@ -1080,12 +1347,55 @@
       });
     }
 
+    function renderInternetCards() {
+      const bestMobile = bestMobilePlan();
+      const mobileTotal = bestMobile ? totalFor(bestMobile) : 0;
+      const sorted = [...internetPlans].sort((a, b) => internetPrice(a) - internetPrice(b));
+      const cards = document.querySelector("#internetCards");
+      cards.innerHTML = "";
+
+      sorted.forEach(plan => {
+        const basePrice = internetBasePrice(plan);
+        const optionCost = internetOptionCost(plan);
+        const netPrice = internetPrice(plan);
+        const total = mobileTotal + netPrice;
+        const article = document.createElement("article");
+        article.className = "internet-card";
+        article.innerHTML = `
+          <div class="brand-bar ${plan.carrier}"></div>
+          <div>
+            <div class="carrier">${plan.match}</div>
+            <h3>${plan.name}</h3>
+          </div>
+          <div class="price">${yen(netPrice).replace("￥", "")}<small>円/月</small></div>
+          <div class="internet-tags">
+            <span class="tag">${plan.speed}</span>
+            <span class="tag">${plan.construction}</span>
+            <span class="tag">${state.homeType === "house" ? "戸建て" : "マンション"}</span>
+          </div>
+          <p class="internet-note">${plan.note}</p>
+          <div class="specs">
+            <div class="spec"><span>回線基本料</span><strong>${yen(basePrice)}</strong></div>
+            <div class="spec"><span>オプション</span><strong>${state.includeInternetOptions ? plan.requiredOption : "含めない"}</strong></div>
+            <div class="spec"><span>スマホ割</span><strong>${plan.setDiscount}</strong></div>
+            <div class="spec"><span>スマホ最安と合計</span><strong>${bestMobile ? yen(total) : "-"}</strong></div>
+          </div>
+          <div class="card-footer">
+            <span class="fit">${optionCost ? `+${yen(optionCost)}` : carrierName(plan.carrier)}</span>
+            <a class="source-link" href="${plan.source}" target="_blank" rel="noreferrer">公式</a>
+          </div>
+        `;
+        cards.appendChild(article);
+      });
+    }
+
     function render() {
       document.querySelector("#usageOutput").textContent = state.usage;
       const list = filteredPlans();
       renderControls();
       renderSummary(list);
       renderCards(list);
+      renderInternetCards();
       renderTable(list);
     }
 
@@ -1101,6 +1411,18 @@
 
     document.querySelector("#sortMode").addEventListener("change", event => {
       state.sort = event.target.value;
+      render();
+    });
+
+    document.querySelector("#homeType").addEventListener("change", event => {
+      state.homeType = event.target.value;
+      render();
+    });
+
+    document.querySelector("#internetOptionToggle").addEventListener("click", event => {
+      state.includeInternetOptions = !state.includeInternetOptions;
+      event.currentTarget.classList.toggle("active", state.includeInternetOptions);
+      event.currentTarget.textContent = state.includeInternetOptions ? "必須オプション込み" : "必須オプションなし";
       render();
     });
 
