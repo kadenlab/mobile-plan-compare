@@ -1266,7 +1266,7 @@
       sort: "price",
       homeType: "mansion",
       includeInternetOptions: true,
-      internetType: "all"
+      internetTypes: new Set(["fiber", "router", "mobileRouter", "tenG"])
     };
 
     const compareModeLabels = {
@@ -1514,10 +1514,11 @@
         button.textContent = label;
         button.addEventListener("click", () => {
           if (key === "all") {
-            state.carriers = new Set(["docomo", "au", "softbank", "rakuten", "mvno"]);
+            state.carriers = state.carriers.size === Object.keys(carrierLabels).length - 1
+              ? new Set()
+              : new Set(["docomo", "au", "softbank", "rakuten", "mvno"]);
           } else if (state.carriers.has(key)) {
             state.carriers.delete(key);
-            if (!state.carriers.size) state.carriers.add(key);
           } else {
             state.carriers.add(key);
           }
@@ -1549,10 +1550,18 @@
       Object.entries(internetTypeLabels).forEach(([key, label]) => {
         const button = document.createElement("button");
         button.type = "button";
-        button.className = `chip${state.internetType === key ? " active" : ""}`;
+        button.className = `chip${(key === "all" ? state.internetTypes.size === Object.keys(internetTypeLabels).length - 1 : state.internetTypes.has(key)) ? " active" : ""}`;
         button.textContent = label;
         button.addEventListener("click", () => {
-          state.internetType = key;
+          if (key === "all") {
+            state.internetTypes = state.internetTypes.size === Object.keys(internetTypeLabels).length - 1
+              ? new Set()
+              : new Set(["fiber", "router", "mobileRouter", "tenG"]);
+          } else if (state.internetTypes.has(key)) {
+            state.internetTypes.delete(key);
+          } else {
+            state.internetTypes.add(key);
+          }
           render();
         });
         internetFilter.appendChild(button);
@@ -1649,7 +1658,7 @@
       const mobileTotal = bestMobile ? totalFor(bestMobile) : 0;
       const sorted = internetPlans
         .filter(internetMatchesCarrier)
-        .filter(plan => state.internetType === "all" || plan.type === state.internetType)
+        .filter(plan => state.internetTypes.has(plan.type))
         .sort((a, b) => internetPrice(a) - internetPrice(b));
       const cards = document.querySelector("#internetCards");
       cards.innerHTML = "";
