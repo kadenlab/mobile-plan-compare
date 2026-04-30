@@ -1350,9 +1350,16 @@
     function renderInternetCards() {
       const bestMobile = bestMobilePlan();
       const mobileTotal = bestMobile ? totalFor(bestMobile) : 0;
-      const sorted = [...internetPlans].sort((a, b) => internetPrice(a) - internetPrice(b));
+      const sorted = internetPlans
+        .filter(plan => state.carrier === "all" || plan.carrier === state.carrier)
+        .sort((a, b) => internetPrice(a) - internetPrice(b));
       const cards = document.querySelector("#internetCards");
       cards.innerHTML = "";
+
+      if (!sorted.length) {
+        cards.innerHTML = `<article class="internet-card"><h3>対象の家ネットなし</h3><p class="internet-note">このカテゴリに直接対応する固定回線データはまだありません。「すべて」に戻すと全候補を見られます。</p></article>`;
+        return;
+      }
 
       sorted.forEach(plan => {
         const basePrice = internetBasePrice(plan);
