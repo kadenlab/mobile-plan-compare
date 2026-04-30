@@ -949,7 +949,7 @@
       au: "au系",
       softbank: "ソフトバンク系",
       rakuten: "楽天",
-      mvno: "格安SIM"
+      mvno: "その他"
     };
 
     const internetPlans = [
@@ -1101,11 +1101,12 @@
         speed: "最大2Gbps",
         construction: "工事あり",
         match: "格安SIM / NUROモバイル",
-        setDiscount: "NUROモバイル等と相性あり",
-        requiredOption: "スマホセット割は契約先条件を確認",
-        optionCost: 0,
-        note: "速度重視向き。提供エリアと建物対応の確認が必須。",
-        source: "https://www.nuro.jp/hikari/price/"
+        compatibleCarriers: ["mvno", "softbank"],
+        setDiscount: "SoftBank / Y!mobileのおうち割対象",
+        requiredOption: "NURO 光 でんわ 550円/月目安",
+        optionCost: 550,
+        note: "速度重視向き。NURO 光 でんわ利用でソフトバンク系のセット割対象。",
+        source: "https://www.nuro.jp/hikari/phone/sb.html"
       }
     ];
 
@@ -1130,8 +1131,13 @@
       au: "au系",
       softbank: "ソフトバンク系",
       rakuten: "楽天",
-      mvno: "格安SIM"
+      mvno: "その他"
     })[carrier] || carrier;
+
+    const internetMatchesCarrier = plan =>
+      state.carrier === "all" ||
+      plan.carrier === state.carrier ||
+      (plan.compatibleCarriers || []).includes(state.carrier);
 
     const internetBasePrice = plan => state.homeType === "house" ? plan.house : plan.mansion;
     const internetOptionCost = plan => state.includeInternetOptions ? (plan.optionCost || 0) : 0;
@@ -1351,7 +1357,7 @@
       const bestMobile = bestMobilePlan();
       const mobileTotal = bestMobile ? totalFor(bestMobile) : 0;
       const sorted = internetPlans
-        .filter(plan => state.carrier === "all" || plan.carrier === state.carrier)
+        .filter(internetMatchesCarrier)
         .sort((a, b) => internetPrice(a) - internetPrice(b));
       const cards = document.querySelector("#internetCards");
       cards.innerHTML = "";
